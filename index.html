@@ -2,28 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Stirling PDF</title>
+  <title>Word to PDF Converter</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
+    body {
+      font-family: sans-serif;
+      padding: 40px;
+      text-align: center;
+      background-color: #f4f4f4;
     }
 
-    iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #result {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <iframe src="http://84.247.162.136:8080"></iframe>
+  <h1>Word to PDF Converter</h1>
+  <p>Upload a .doc or .docx file to convert it to PDF</p>
+
+  <form id="uploadForm">
+    <input type="file" name="file" accept=".doc,.docx" required>
+    <br>
+    <button type="submit">Convert</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      resultDiv.textContent = 'Converting...';
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('http://84.247.162.136:8080/api/convert/word-to-pdf', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error("Conversion failed");
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'converted.pdf';
+        link.textContent = 'Download PDF';
+        resultDiv.innerHTML = '';
+        resultDiv.appendChild(link);
+
+      } catch (err) {
+        resultDiv.textContent = 'Error: ' + err.message;
+      }
+    });
+  </script>
 
 </body>
 </html>
