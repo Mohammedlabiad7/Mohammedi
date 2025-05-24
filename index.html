@@ -6,85 +6,117 @@
     <title>تحويل ملفات Stirling PDF</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
             margin: 20px;
-            background-color: #f4f4f4;
+            background-color: #f0f2f5;
             display: flex;
             flex-direction: column;
             align-items: center;
+            color: #1c1e21;
         }
         .container {
             background-color: #fff;
-            padding: 20px;
+            padding: 25px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
+            box-sizing: border-box;
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #007bff; /* لون أزرق مميز */
+            margin-bottom: 25px;
+            font-size: 24px;
         }
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
+            color: #4b4f56;
         }
         input[type="file"], select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="file"] {
+            cursor: pointer;
         }
         button {
             background-color: #007bff;
             color: white;
-            padding: 10px 15px;
+            padding: 12px 18px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 17px;
+            font-weight: 600;
             width: 100%;
+            transition: background-color 0.2s ease-in-out;
         }
         button:hover {
             background-color: #0056b3;
         }
         button:disabled {
-            background-color: #cccccc;
+            background-color: #e4e6eb;
+            color: #bcc0c4;
             cursor: not-allowed;
         }
         #status {
             margin-top: 20px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 6px;
         }
-        .success { color: green; }
-        .error { color: red; }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>تحويل ملفات بواسطة Stirling PDF</h1>
+        <h1>تحويل الملفات بواسطة Stirling PDF</h1>
 
         <label for="fileInput">اختر ملفاً:</label>
         <input type="file" id="fileInput" required>
 
         <label for="outputFormat">اختر صيغة الإخراج:</label>
         <select id="outputFormat">
-            <option value="pdf">PDF</option>
+            <option value="pdf">PDF (من صيغ أخرى)</option>
             <option value="docx">DOCX (Word)</option>
-            <option value="png">PNG (صورة)</option>
-            <option value="jpg">JPG (صورة)</option>
-            <option value="html">HTML</option>
-            <option value="txt">TXT (نص)</option>
             <option value="pptx">PPTX (PowerPoint)</option>
             <option value="xlsx">XLSX (Excel)</option>
-            <!-- أضف المزيد من الصيغ حسب الحاجة ودعم Stirling PDF -->
+            <option value="png">PNG (صورة)</option>
+            <option value="jpg">JPG (صورة)</option>
+            <option value="webp">WEBP (صورة)</option>
+            <option value="html">HTML</option>
+            <option value="txt">TXT (نص)</option>
+            <option value="odt">ODT (OpenDocument Text)</option>
+            <option value="odp">ODP (OpenDocument Presentation)</option>
+            <option value="ods">ODS (OpenDocument Spreadsheet)</option>
+            <!-- يمكنك إضافة المزيد من الصيغ التي يدعمها Stirling PDF عبر /general/convert -->
+            <!-- مثال: markdown, rtf, etc. -->
         </select>
 
-        <button id="convertButton">تحويل</button>
+        <button id="convertButton">تحويل الملف</button>
 
         <div id="status"></div>
     </div>
@@ -95,11 +127,19 @@
         const convertButton = document.getElementById('convertButton');
         const statusDiv = document.getElementById('status');
 
-        // هام جداً: قم بتغيير هذا الرابط إلى عنوان سيرفر Stirling PDF الخاص بك
+        // --- هام جداً: قم بتغيير هذا الرابط ---
+        // يجب أن يشير إلى عنوان سيرفر Stirling PDF الخاص بك متبوعاً بـ /api/v1/general/convert
+        // مثال إذا كان يعمل محلياً: 'http://localhost:8080/api/v1/general/convert'
+        // مثال إذا كان على سيرفر عام: 'https://your-stirling-server.com/api/v1/general/convert'
         const STIRLING_PDF_API_URL = 'http://84.247.162.136:8080/api/v1/general/convert';
-        // مثال: const STIRLING_PDF_API_URL = 'https://your-stirling-pdf.example.com/api/v1/general/convert';
 
         convertButton.addEventListener('click', async () => {
+            if (STIRLING_PDF_API_URL === 'YOUR_STIRLING_PDF_SERVER_URL/api/v1/general/convert') {
+                statusDiv.textContent = 'خطأ: الرجاء تعديل رابط السيرفر (STIRLING_PDF_API_URL) في الكود أولاً.';
+                statusDiv.className = 'error';
+                return;
+            }
+
             const file = fileInput.files[0];
             const outputFormat = outputFormatSelect.value;
 
@@ -109,17 +149,16 @@
                 return;
             }
 
-            statusDiv.textContent = 'جارٍ التحويل...';
-            statusDiv.className = '';
+            statusDiv.textContent = 'جارٍ التحويل، يرجى الانتظار...';
+            statusDiv.className = 'info';
             convertButton.disabled = true;
 
             const formData = new FormData();
             formData.append('fileInput', file);
             formData.append('outputFormat', outputFormat);
-            // إذا كان لديك حقل لكلمة المرور، يمكنك إضافته هنا:
-            // const password = document.getElementById('passwordInput').value;
+            // يمكنك إضافة حقل لكلمة المرور إذا أردت:
+            // const password = document.getElementById('passwordInput')?.value;
             // if (password) formData.append('inputPassword', password);
-
 
             try {
                 const response = await fetch(STIRLING_PDF_API_URL, {
@@ -133,9 +172,9 @@
                     const blob = await response.blob();
                     
                     // محاولة الحصول على اسم الملف من ترويسة Content-Disposition
-                    let filename = `${file.name.split('.').slice(0, -1).join('.')}.${outputFormat}`; // اسم افتراضي
+                    let filename;
                     const disposition = response.headers.get('Content-Disposition');
-                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                    if (disposition && disposition.includes('attachment')) {
                         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
                         const matches = filenameRegex.exec(disposition);
                         if (matches != null && matches[1]) {
@@ -143,43 +182,62 @@
                         }
                     }
                     
+                    // إذا لم يتم العثور على اسم ملف في الترويسة، قم بإنشاء اسم افتراضي
+                    if (!filename) {
+                        let baseName = file.name;
+                        const lastDot = file.name.lastIndexOf('.');
+                        if (lastDot > 0 && lastDot < file.name.length -1) { // تأكد أن النقطة ليست الحرف الأول أو الأخير
+                            baseName = file.name.substring(0, lastDot);
+                        }
+                        filename = `${baseName}.${outputFormat}`;
+                    }
+                    
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = filename; // استخدام الاسم المستخرج أو اسم افتراضي
+                    a.download = filename;
                     document.body.appendChild(a);
                     a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
+                    
+                    // تأخير بسيط قبل إزالة الرابط لضمان بدء التنزيل في بعض المتصفحات
+                    setTimeout(() => {
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    }, 100);
 
-                    statusDiv.textContent = 'تم التحويل بنجاح! بدأ التنزيل.';
+
+                    statusDiv.textContent = `تم التحويل بنجاح! بدأ تنزيل الملف: ${filename}`;
                     statusDiv.className = 'success';
                 } else {
-                    // محاولة قراءة رسالة الخطأ من السيرفر
                     let errorMessage = `خطأ في التحويل: ${response.status} ${response.statusText}`;
                     try {
-                        const errorData = await response.json(); // Stirling PDF قد يرجع خطأ JSON
+                        const errorData = await response.json();
                         if (errorData && errorData.message) {
-                           errorMessage = `خطأ: ${errorData.message}`;
+                           errorMessage = `خطأ من السيرفر: ${errorData.message}`;
                         } else if (errorData && errorData.error && errorData.error.message) {
-                           errorMessage = `خطأ: ${errorData.error.message}`;
+                           errorMessage = `خطأ من السيرفر: ${errorData.error.message}`;
+                        } else if (typeof errorData === 'string') {
+                            errorMessage = `خطأ من السيرفر: ${errorData}`;
                         }
                     } catch (e) {
-                        // إذا لم تكن الاستجابة JSON، استخدم النص العادي
+                        // إذا لم تكن الاستجابة JSON، حاول قراءة النص
                         const textError = await response.text();
-                        if (textError) errorMessage = `خطأ: ${textError}`;
+                        if (textError) {
+                            errorMessage = `خطأ من السيرفر: ${textError.substring(0, 300)}`; // اقتطاع الرسائل الطويلة
+                        }
                     }
                     statusDiv.textContent = errorMessage;
                     statusDiv.className = 'error';
                 }
             } catch (error) {
-                console.error('Error during conversion:', error);
-                statusDiv.textContent = 'حدث خطأ غير متوقع أثناء الاتصال بالسيرفر.';
+                console.error('Error during conversion process:', error);
+                statusDiv.textContent = 'حدث خطأ غير متوقع. تحقق من اتصالك بالسيرفر أو راجع وحدة التحكم (Console) للمزيد من التفاصيل.';
                 statusDiv.className = 'error';
             } finally {
                 convertButton.disabled = false;
-                fileInput.value = ''; // مسح حقل الملف
+                // لا تقم بمسح حقل الملف تلقائياً، قد يرغب المستخدم في إعادة المحاولة أو تحويله لصيغة أخرى
+                // fileInput.value = ''; 
             }
         });
     </script>
