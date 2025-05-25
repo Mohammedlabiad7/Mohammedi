@@ -1,57 +1,34 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>تحويل رابط إلى PDF</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 50px;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      width: 300px;
-      margin: 10px;
-    }
-    a {
-      margin-top: 20px;
-      color: green;
-    }
-  </style>
+  <title>Stirling PDF API Test</title>
 </head>
 <body>
-  <h1>تحويل رابط إلى PDF</h1>
-  <input id="url" type="text" placeholder="أدخل رابط الصفحة">
+  <h2>تحويل صفحة ويب إلى PDF</h2>
+  <input type="text" id="url" placeholder="أدخل رابط الصفحة" size="50">
   <button onclick="convertToPDF()">تحويل</button>
-  <div id="result"></div>
 
   <script>
     async function convertToPDF() {
-      const input = document.getElementById('url');
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = "جاري التحويل...";
-      
-      try {
-        const res = await fetch("http://84.247.162.136:3000/api/v1/convert/url/pdf", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: input.value })
-        });
+      const url = document.getElementById("url").value;
+      const response = await fetch("http://84.247.162.136:8080/api/v1/convert/url/pdf", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": "9a67c4e5-52f6-42f7-9867-f5d320a05e10"
+        },
+        body: new URLSearchParams({ url: url })
+      });
 
-        if (!res.ok) throw new Error("فشل التحويل");
-
-        const blob = await res.blob();
-        const pdfUrl = URL.createObjectURL(blob);
-
-        resultDiv.innerHTML = `<a href="${pdfUrl}" download="converted.pdf">تحميل الملف PDF</a>`;
-      } catch (err) {
-        resultDiv.innerHTML = "حدث خطأ أثناء التحويل.";
-        console.error(err);
+      if (response.ok) {
+        const blob = await response.blob();
+        const downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "converted.pdf";
+        a.click();
+      } else {
+        alert("فشل التحويل! تأكد من الرابط وAPI Key");
       }
     }
   </script>
