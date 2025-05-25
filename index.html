@@ -1,33 +1,59 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>عارض المواقع</title>
+  <meta charset="UTF-8">
+  <title>تحويل رابط إلى PDF</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: Arial;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
     }
-    header {
-      background-color: #222;
-      color: white;
-      padding: 1rem;
-      text-align: center;
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      margin: 10px;
     }
-    iframe {
-      width: 100%;
-      height: calc(100vh - 70px);
-      border: none;
+    a {
+      margin-top: 20px;
+      color: green;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1></h1> المواقع عبر البروكسي</h1>
-  </header>
+  <h1>تحويل رابط إلى PDF</h1>
+  <input id="url" type="text" placeholder="أدخل رابط الصفحة">
+  <button onclick="convertToPDF()">تحويل</button>
+  <div id="result"></div>
 
-  <!-- غيّر IP والمنفذ إلى عنوان خادمك الفعلي -->
-  <iframe src="http://84.247.162.136/"></iframe>
+  <script>
+    async function convertToPDF() {
+      const input = document.getElementById('url');
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "جاري التحويل...";
+      
+      try {
+        const res = await fetch("http://84.247.162.136:3000/api/v1/convert/url/pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: input.value })
+        });
+
+        if (!res.ok) throw new Error("فشل التحويل");
+
+        const blob = await res.blob();
+        const pdfUrl = URL.createObjectURL(blob);
+
+        resultDiv.innerHTML = `<a href="${pdfUrl}" download="converted.pdf">تحميل الملف PDF</a>`;
+      } catch (err) {
+        resultDiv.innerHTML = "حدث خطأ أثناء التحويل.";
+        console.error(err);
+      }
+    }
+  </script>
 </body>
 </html>
